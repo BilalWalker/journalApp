@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.entity.JournalEntry;
 import net.engineeringdigest.journalApp.entity.User;
 import net.engineeringdigest.journalApp.repository.JournalEntryRepository;
-import net.engineeringdigest.journalApp.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,6 +35,10 @@ public class JournalEntryService {
         }
     }
 
+    public void saveEntry(JournalEntry journalEntry) {
+        journalEntryRepository.save(journalEntry);
+    }
+
     public List<JournalEntry> getAll() {
         return journalEntryRepository.findAll();
     }
@@ -44,7 +47,10 @@ public class JournalEntryService {
         return journalEntryRepository.findById(id);
     }
 
-    public void deleteById(ObjectId id) {
+    public void deleteById(ObjectId id, String username) {
+        User user = userService.findByUsername(username);
+        user.getJournalEntries().removeIf(x -> x.getId().equals(id));
+        userService.saveEntry(user);
         journalEntryRepository.deleteById(id);
     }
 }
